@@ -13,6 +13,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.university.ip.R
 import com.university.ip.ui.main.MainActivity
 import com.university.ip.util.files.FileSaver.Companion.IMAGE_MIME_TYPE
@@ -33,6 +34,8 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
 
     private lateinit var filterList: RecyclerView
     private lateinit var seekBar: SeekBar
+    private lateinit var firstButton: FloatingActionButton
+    private lateinit var secondButton: FloatingActionButton
 
     private lateinit var fileSaver: FileSaverLegacy
     private lateinit var bitmap: Bitmap
@@ -127,8 +130,8 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
         const val INTENT_EXTRAS: String = "INTENT_EXTRAS"
         const val REQUEST_CODE: String = "REQUEST_CODE"
         const val RESULT_CODE: String = "RESULT_CODE"
-        val FILTERS_ARRAY : List<String> = listOf("Brightness", "Contrast", "Another filter")
-        val FILTERS_SLIDER_ARRAY : List<String> = listOf("Brightness", "Contrast")
+        val FILTERS_ARRAY : List<String> = listOf("Brightness", "Contrast", "Grayscale", "Binary Thresh", "Zoom", "Flip", "Rotate Clockwise", "Rotate Anticlockwise", "Another filter")
+        val FILTERS_SLIDER_ARRAY : List<String> = listOf("Brightness", "Contrast", "Binary Thresh", "Zoom")
     }
 
     override fun onClick(v: View?) {
@@ -153,6 +156,26 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
             seekBar.setOnSeekBarChangeListener(this)
         } else {
             seekBar.visibility = View.GONE
+            when(FILTERS_ARRAY.indexOf(selectedFilter)){
+                2 -> {
+                    presenter.grayscale(bitmap)
+                    return
+                }
+                5 -> {
+                    presenter.flip(bitmap)
+                    return
+                }
+                6 -> {
+                    presenter.rotate(bitmap, true)
+                    return
+                }
+                7 -> {
+                    presenter.rotate(bitmap, false)
+                    return
+                }
+                else -> return
+            }
+
         }
         println(FILTERS_SLIDER_ARRAY.indexOf(selectedFilter))
     }
@@ -167,6 +190,10 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
             }
             1 -> {
                 presenter.contrast(bitmap, progress)
+                return
+            }
+            2 -> {
+                presenter.binary(bitmap, progress)
                 return
             }
             else -> return

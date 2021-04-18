@@ -16,5 +16,13 @@ interface EditorContract {
         fun brightness(bitmap: Bitmap, value:Int)
 
         fun contrast(bitmap: Bitmap, value:Int)
+
+        fun grayscale(bitmap: Bitmap)
+
+        fun binary(bitmap: Bitmap, value: Int)
+
+        fun flip(bitmap: Bitmap)
+
+        fun rotate(bitmap: Bitmap, value: Boolean)
     }
 }
