@@ -43,7 +43,7 @@
             android:textSize="20sp" />
     </androidx.appcompat.widget.Toolbar>
 
-    <ImageView
+    <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/image_edited"
         android:layout_width="match_parent"
         android:layout_height="0dp"

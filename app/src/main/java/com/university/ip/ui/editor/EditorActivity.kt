@@ -11,14 +11,14 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.drawToBitmap
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.github.chrisbanes.photoview.PhotoView
 import com.university.ip.R
 import com.university.ip.ui.main.MainActivity
 import com.university.ip.util.files.FileSaver.Companion.IMAGE_MIME_TYPE
 import com.university.ip.util.files.FileSaverLegacy
-import kotlinx.android.synthetic.main.activity_editor.*
 import org.opencv.android.OpenCVLoader
 
 
@@ -29,13 +29,11 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
 
     private lateinit var backButton: ImageView
     private lateinit var saveButton: TextView
-    private lateinit var imageView: ImageView
+    private lateinit var imageView: PhotoView
 
 
     private lateinit var filterList: RecyclerView
     private lateinit var seekBar: SeekBar
-    private lateinit var firstButton: FloatingActionButton
-    private lateinit var secondButton: FloatingActionButton
 
     private lateinit var fileSaver: FileSaverLegacy
     private lateinit var bitmap: Bitmap
@@ -130,8 +128,9 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
         const val INTENT_EXTRAS: String = "INTENT_EXTRAS"
         const val REQUEST_CODE: String = "REQUEST_CODE"
         const val RESULT_CODE: String = "RESULT_CODE"
-        val FILTERS_ARRAY : List<String> = listOf("Brightness", "Contrast", "Grayscale", "Binary Thresh", "Zoom", "Flip", "Rotate Clockwise", "Rotate Anticlockwise", "Another filter")
-        val FILTERS_SLIDER_ARRAY : List<String> = listOf("Brightness", "Contrast", "Binary Thresh", "Zoom")
+        val FILTERS_ARRAY : List<String> = listOf("Brightness", "Contrast", "Grayscale", "Binary Thresh",
+            "Flip", "Rotate Clockwise", "Rotate Anticlockwise", "Gaussian Blur", "Median Blur", "Sobel", "Unsharp Mask")
+        val FILTERS_SLIDER_ARRAY : List<String> = listOf("Brightness", "Contrast", "Binary Thresh", "Gaussian Blur", "Median Blur")
     }
 
     override fun onClick(v: View?) {
@@ -142,7 +141,7 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
             R.id.save_button -> {
                 val uri = fileSaver.getFileUri(IMAGE_MIME_TYPE) ?: return
                 appContext().contentResolver.openOutputStream(uri)?.use { stream ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                    imageView.drawToBitmap().compress(Bitmap.CompressFormat.JPEG, 100, stream)
                 }
                 startActivity(Intent(appContext(), MainActivity::class.java))
             }
@@ -161,16 +160,24 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
                     presenter.grayscale(bitmap)
                     return
                 }
-                5 -> {
+                4 -> {
                     presenter.flip(bitmap)
                     return
                 }
-                6 -> {
+                5 -> {
                     presenter.rotate(bitmap, true)
                     return
                 }
-                7 -> {
+                6 -> {
                     presenter.rotate(bitmap, false)
+                    return
+                }
+                9 -> {
+                    presenter.sobel(bitmap)
+                    return
+                }
+                10 -> {
+                    presenter.unsharpMask(bitmap)
                     return
                 }
                 else -> return
@@ -194,6 +201,15 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
             }
             2 -> {
                 presenter.binary(bitmap, progress)
+                return
+            }
+
+            3 -> {
+                presenter.gaussianBlur(bitmap, progress)
+                return
+            }
+            4 -> {
+                presenter.medianBlur(bitmap, progress)
                 return
             }
             else -> return
