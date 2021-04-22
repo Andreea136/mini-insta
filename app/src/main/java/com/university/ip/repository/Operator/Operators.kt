@@ -2,27 +2,55 @@ package com.university.ip.repository.Operator
 
 import android.graphics.Bitmap
 import org.opencv.android.Utils
-import org.opencv.core.CvType
-import org.opencv.core.Mat
-import org.opencv.core.Core
-import org.opencv.core.Size
+import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
+
 
 class Operators {
 
-    fun increaseBrightness(bitmap: Bitmap, value: Int) : Bitmap {
+    fun increaseBrightness(bitmap: Bitmap, value: Int, seekBar: Int) : Bitmap {
         val src = Mat(bitmap.height, bitmap.width, CvType.CV_8UC1)
         Utils.bitmapToMat(bitmap, src)
-        src.convertTo(src, -1,1.0, value.toDouble())
+
+        val dest: ArrayList<Mat> = ArrayList(3)
+        Core.split(src, dest)
+        when (seekBar) {
+            0 -> {
+                dest[0].convertTo(dest[0], -1, 1.0, value.toDouble())
+            }
+            1 -> {
+                dest[1].convertTo(dest[1], -1, 1.0, value.toDouble())
+            }
+            else -> {
+                dest[2].convertTo(dest[2], -1, 1.0, value.toDouble())
+            }
+        }
+
+        Core.merge(dest, src)
         val result = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(src, result)
+
         return result
     }
 
-    fun increaseContrast(bitmap: Bitmap, value: Int) : Bitmap {
+    fun increaseContrast(bitmap: Bitmap, value: Int, seekBar: Int) : Bitmap {
         val src = Mat(bitmap.height, bitmap.width, CvType.CV_8UC1)
         Utils.bitmapToMat(bitmap, src)
-        src.convertTo(src, -1, value.toDouble(),1.0)
+        val dst: ArrayList<Mat> = ArrayList(3)
+        Core.split(src, dst)
+        when (seekBar) {
+            0 -> {
+                dst[0].convertTo(dst[0], -1, value.toDouble() / 2.0, 1.0)
+            }
+            1 -> {
+                dst[1].convertTo(dst[1], -1, value.toDouble() / 2.0, 1.0)
+            }
+            else -> {
+                dst[2].convertTo(dst[2], -1, value.toDouble() / 2.0, 1.0)
+            }
+        }
+
+        Core.merge(dst, src)
         val result = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(src, result)
         return result
@@ -72,20 +100,23 @@ class Operators {
         return result
     }
 
-    fun gaussianBlur(bitmap: Bitmap, value: Int) : Bitmap{
+    fun gaussianBlur(bitmap: Bitmap, value: Int, seekBar: Int) : Bitmap{
         val src = Mat(bitmap.height, bitmap.width, CvType.CV_8UC1)
         Utils.bitmapToMat(bitmap, src)
 
-        var ksize = 3.0
-        var margin = 10
-        while(value >= margin)
-        {
-            ksize += 2.0
-            margin += 20
+        if(seekBar == 0){
+            var ksize = 3.0
+            var margin = 10
+            while(value >= margin)
+            {
+                ksize += 2.0
+                margin += 10
+            }
+            if(value>10)
+                Imgproc.GaussianBlur(src, src, Size(ksize, ksize), 0.0)
         }
-
-        if(value>10)
-            Imgproc.GaussianBlur(src, src, Size(ksize, ksize), 0.0)
+        else
+            Imgproc.GaussianBlur(src, src, Size(0.0, 0.0), value.toDouble() / 2.0)
 
         val result = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(src, result)
@@ -100,7 +131,7 @@ class Operators {
         while(value >= margin)
         {
             ksize += 2
-            margin += 20
+            margin += 10
         }
 
         if(value>10)
@@ -116,7 +147,7 @@ class Operators {
         Utils.bitmapToMat(bitmap, src)
 
         Imgproc.cvtColor(src, src, Imgproc.COLOR_RGB2GRAY)
-        Imgproc.Sobel( src, src, CvType.CV_8UC1, 1, 0)
+        Imgproc.Sobel(src, src, CvType.CV_8UC1, 1, 0)
 
         val result = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(src, result)
@@ -135,6 +166,40 @@ class Operators {
 
         val result = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(src, result)
+        return result
+    }
+
+    fun oilPainting(bitmap: Bitmap) : Bitmap{
+        val src = Mat(bitmap.height, bitmap.width, CvType.CV_8UC1)
+        Utils.bitmapToMat(bitmap, src)
+
+        var size = bitmap.height/25
+        if(size%2==0)
+            size+=1
+
+        Imgproc.medianBlur(src, src, size)
+        src.convertTo(src, -1, 1.0, 10.0)
+
+        val result = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(src, result)
+        return result
+    }
+
+    fun canny(bitmap: Bitmap) : Bitmap{
+        val src = Mat(bitmap.height, bitmap.width, CvType.CV_8UC1)
+        Utils.bitmapToMat(bitmap, src)
+
+        val gray = Mat(src.rows(), src.cols(), src.type())
+        val edges = Mat(src.rows(), src.cols(), src.type())
+        val dest = Mat(src.rows(), src.cols(), src.type())
+
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY)
+        Imgproc.blur(gray, edges, Size(3.0, 3.0))
+        Imgproc.Canny(edges, edges, 25.0, (25 * 3).toDouble(), 3, false)
+        src.copyTo(dest, edges)
+
+        val result = Bitmap.createBitmap(dest.cols(), dest.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(dest, result)
         return result
     }
 

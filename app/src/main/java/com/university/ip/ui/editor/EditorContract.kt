@@ -13,9 +13,9 @@ interface EditorContract {
     interface Presenter {
         //functions that are going to use our library
 
-        fun brightness(bitmap: Bitmap, value: Int)
+        fun brightness(bitmap: Bitmap, value: Int, seekBar: Int)
 
-        fun contrast(bitmap: Bitmap, value: Int)
+        fun contrast(bitmap: Bitmap, value: Int, seekBar: Int)
 
         fun grayscale(bitmap: Bitmap)
 
@@ -25,12 +25,16 @@ interface EditorContract {
 
         fun rotate(bitmap: Bitmap, value: Boolean)
 
-        fun gaussianBlur(bitmap: Bitmap, value: Int)
+        fun gaussianBlur(bitmap: Bitmap, value: Int, seekBar: Int)
 
         fun medianBlur(bitmap: Bitmap, value: Int)
 
         fun sobel(bitmap: Bitmap)
 
         fun unsharpMask(bitmap: Bitmap)
+
+        fun oilPainting(bitmap: Bitmap)
+
+        fun canny(bitmap: Bitmap)
     }
 }

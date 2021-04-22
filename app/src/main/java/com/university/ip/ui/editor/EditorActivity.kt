@@ -34,6 +34,8 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
 
     private lateinit var filterList: RecyclerView
     private lateinit var seekBar: SeekBar
+    private lateinit var seekBar2: SeekBar
+    private lateinit var seekBar3: SeekBar
 
     private lateinit var fileSaver: FileSaverLegacy
     private lateinit var bitmap: Bitmap
@@ -60,6 +62,8 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
         filterList.adapter = adapter
 
         seekBar = findViewById(R.id.seek_bar_editor)
+        seekBar2 = findViewById(R.id.seek_bar_editor_2)
+        seekBar3 = findViewById(R.id.seek_bar_editor_3)
 
         backButton = findViewById(R.id.back_editor)
         backButton.setOnClickListener(this)
@@ -129,8 +133,9 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
         const val REQUEST_CODE: String = "REQUEST_CODE"
         const val RESULT_CODE: String = "RESULT_CODE"
         val FILTERS_ARRAY : List<String> = listOf("Brightness", "Contrast", "Grayscale", "Binary Thresh",
-            "Flip", "Rotate Clockwise", "Rotate Anticlockwise", "Gaussian Blur", "Median Blur", "Sobel", "Unsharp Mask")
-        val FILTERS_SLIDER_ARRAY : List<String> = listOf("Brightness", "Contrast", "Binary Thresh", "Gaussian Blur", "Median Blur")
+            "Flip", "Rotate Clockwise", "Rotate Anticlockwise", "Gaussian Blur", "Median Blur", "Sobel", "Unsharp Mask", "Oil Painting", "Canny")
+        val FILTERS_SLIDER_ARRAY : List<String> = listOf("Brightness", "Contrast", "Gaussian Blur","Binary Thresh", "Median Blur")
+
     }
 
     override fun onClick(v: View?) {
@@ -151,10 +156,29 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
     override fun onItemClick(filter: String) {
         selectedFilter = filter
         if(FILTERS_SLIDER_ARRAY.indexOf(selectedFilter) >= 0){
+
+            seekBar2.visibility = View.GONE
+            seekBar3.visibility = View.GONE
+
             seekBar.visibility = View.VISIBLE
             seekBar.setOnSeekBarChangeListener(this)
+
+            if(FILTERS_SLIDER_ARRAY.indexOf(selectedFilter) < 3)
+            {
+                seekBar2.visibility = View.VISIBLE
+                seekBar2.setOnSeekBarChangeListener(this)
+            }
+
+            if(FILTERS_SLIDER_ARRAY.indexOf(selectedFilter) < 2){
+                seekBar3.visibility = View.VISIBLE
+                seekBar3.setOnSeekBarChangeListener(this)
+            }
+
         } else {
             seekBar.visibility = View.GONE
+            seekBar2.visibility = View.GONE
+            seekBar3.visibility = View.GONE
+
             when(FILTERS_ARRAY.indexOf(selectedFilter)){
                 2 -> {
                     presenter.grayscale(bitmap)
@@ -180,6 +204,14 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
                     presenter.unsharpMask(bitmap)
                     return
                 }
+                11 -> {
+                    presenter.oilPainting(bitmap)
+                    return
+                }
+                12 -> {
+                    presenter.canny(bitmap)
+                    return
+                }
                 else -> return
             }
 
@@ -192,20 +224,53 @@ class EditorActivity : AppCompatActivity(), EditorContract.View, View.OnClickLis
         println(selectedFilter)
         when(FILTERS_SLIDER_ARRAY.indexOf(selectedFilter)){
             0 -> {
-                presenter.brightness(bitmap, progress)
-                return
+                when(seekBar.id){
+                    R.id.seek_bar_editor ->{
+                        presenter.brightness(bitmap, progress, 0)
+                        return
+                    }
+                    R.id.seek_bar_editor_2 ->{
+                        presenter.brightness(bitmap, progress, 1)
+                        return
+                    }
+                    R.id.seek_bar_editor_3 ->{
+                        presenter.brightness(bitmap, progress, 2)
+                        return
+                    }
+                }
             }
             1 -> {
-                presenter.contrast(bitmap, progress)
-                return
+                when(seekBar.id){
+                    R.id.seek_bar_editor ->{
+                        presenter.contrast(bitmap, progress, 0)
+                        return
+                    }
+                    R.id.seek_bar_editor_2 ->{
+                        presenter.contrast(bitmap, progress, 1)
+                        return
+                    }
+                    R.id.seek_bar_editor_3 ->{
+                        presenter.contrast(bitmap, progress, 2)
+                        return
+                    }
+                }
             }
+
             2 -> {
-                presenter.binary(bitmap, progress)
-                return
+                when(seekBar.id){
+                     R.id.seek_bar_editor ->{
+                        presenter.gaussianBlur(bitmap, progress, 0)
+                        return
+                    }
+                    R.id.seek_bar_editor_2 ->{
+                        presenter.gaussianBlur(bitmap, progress, 1)
+                        return
+                    }
+                }
             }
 
             3 -> {
-                presenter.gaussianBlur(bitmap, progress)
+                presenter.binary(bitmap, progress)
                 return
             }
             4 -> {

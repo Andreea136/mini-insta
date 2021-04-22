@@ -7,13 +7,13 @@ import com.university.ip.ui.base.BasePresenter
 class EditorPresenter: BasePresenter<EditorContract.View>(), EditorContract.Presenter {
     private val operators = Operators()
 
-    override fun brightness(bitmap: Bitmap, value: Int){
-        val result = operators.increaseBrightness(bitmap, value)
+    override fun brightness(bitmap: Bitmap, value: Int, seekBar: Int){
+        val result = operators.increaseBrightness(bitmap, value, seekBar)
         getView()?.setBitmap(result)
     }
 
-    override fun contrast(bitmap: Bitmap, value: Int){
-        val result = operators.increaseContrast(bitmap, value)
+    override fun contrast(bitmap: Bitmap, value: Int, seekBar: Int){
+        val result = operators.increaseContrast(bitmap, value, seekBar)
         getView()?.setBitmap(result)
     }
 
@@ -37,8 +37,8 @@ class EditorPresenter: BasePresenter<EditorContract.View>(), EditorContract.Pres
         getView()?.setBitmap(result)
     }
 
-    override fun gaussianBlur(bitmap: Bitmap, value: Int){
-        val result = operators.gaussianBlur(bitmap, value)
+    override fun gaussianBlur(bitmap: Bitmap, value: Int, seekBar: Int){
+        val result = operators.gaussianBlur(bitmap, value, seekBar)
         getView()?.setBitmap(result)
     }
 
@@ -57,7 +57,15 @@ class EditorPresenter: BasePresenter<EditorContract.View>(), EditorContract.Pres
         getView()?.setBitmap(result)
     }
 
+    override fun oilPainting(bitmap: Bitmap){
+        val result = operators.oilPainting(bitmap)
+        getView()?.setBitmap(result)
+    }
 
+    override fun canny(bitmap: Bitmap){
+        val result = operators.canny(bitmap)
+        getView()?.setBitmap(result)
+    }
 
 
 
