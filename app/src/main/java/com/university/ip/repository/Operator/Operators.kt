@@ -70,6 +70,7 @@ class Operators {
         Utils.bitmapToMat(bitmap, src)
         Imgproc.cvtColor(src, src, Imgproc.COLOR_RGB2GRAY)
         Imgproc.threshold(src, src, value.toDouble(), 255.0, Imgproc.THRESH_BINARY)
+        Imgproc.threshold(src, src, value.toDouble()*2.0, 255.0, Imgproc.THRESH_BINARY)
         val result = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(src, result)
         return result
